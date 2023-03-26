@@ -28,7 +28,7 @@ def query(prompt: str):
     return response
         
 def setKey():
-    os.environ["OPENAI_API_KEY"] = "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"
+    os.environ["OPENAI_API_KEY"] = "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"
     
 def build_history(prompts):
     pass
