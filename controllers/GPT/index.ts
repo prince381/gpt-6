@@ -32,7 +32,7 @@ class GPT {
 
             ${systemPrompt}
 
-            Use the above context provided to you to answer any questions you may be given.
+            Use the above context provided to you to answer any questions you may be given. Make sure you stick to the context and do not make up any information.
             `
             console.log(systemPrompt);
 
