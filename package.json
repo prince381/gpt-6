@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "prestart": "yarn build",
     "start": "node dist/server.js",
     "preserve": "yarn build",
     "serve": "concurrently \"tsc -w\" \"nodemon dist/server.js\""
