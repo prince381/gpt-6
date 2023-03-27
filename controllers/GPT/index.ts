@@ -26,7 +26,7 @@ class GPT {
             top_p: 0.95,
             frequency_penalty: 0,
             presence_penalty: 0,
-            max_tokens: 20,
+            max_tokens: 3089,
             stream: true,
             n: 1,
         };
