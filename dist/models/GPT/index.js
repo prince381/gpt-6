@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../../config");
 const openai_1 = require("openai");
+const supabase_js_1 = require("@supabase/supabase-js");
 class Query {
     query(completions) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,6 +31,30 @@ class Query {
                 stream: true
             });
             return response;
+        });
+    }
+    createEmbedding(sentence) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const configuration = new openai_1.Configuration({
+                apiKey: config_1.config.OPENAI_KEY
+            });
+            const openai = new openai_1.OpenAIApi(configuration);
+            const response = yield openai.createEmbedding({
+                model: 'text-embedding-ada-002',
+                input: sentence
+            });
+            const [{ embedding }] = response.data.data;
+            const supabase = (0, supabase_js_1.createClient)(config_1.config.SUPABASE_URL, config_1.config.SUPABASE_KEY);
+            const { data, error } = yield supabase.rpc('search_sm', {
+                query_embedding: embedding,
+                similarity_threshold: 0.7,
+                match_count: 2
+            });
+            if (error) {
+                console.error(error);
+            }
+            // console.log(data);
+            return data;
         });
     }
 }

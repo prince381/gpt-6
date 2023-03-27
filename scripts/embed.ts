@@ -64,7 +64,7 @@ const chunksTask = getChunks(file).map((chunk, index) => {
     return new Promise(async (resolve, reject) => {
         const embedding = await generateEmbeddings(chunk);
         const { data, error } = await supabase
-            .from('gpt')
+            .from('gpt_embedding')
             .insert([
                 {
                     id: index,

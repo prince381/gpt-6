@@ -5,6 +5,7 @@ import { config } from "../../config";
 import fetch from "node-fetch";
 import * as fs from 'fs';
 import * as path from 'path';
+import endent from "endent";
 
 
 class GPT {
@@ -14,15 +15,6 @@ class GPT {
         if (!prompts || prompts.length === 0)
             return res.status(422).send('Bad request!');
 
-        // let systemPrompt = fs.readFileSync(path.resolve(__dirname, 'context/knowledge.txt'), 'utf8');
-        // systemPrompt = systemPrompt.replace(/(\r\n|\n|\r)/gm, "");
-
-        // const completions: ChatCompletionRequestMessage[] = [];
-        // completions.push({ content: systemPrompt, role: 'system' });
-        // prompts.forEach((prompt: ChatCompletionRequestMessage) => {
-        //     completions.push(prompt);
-        // });
-
         res.setHeader('Content-Type', 'text/event-stream');
         const url = "https://api.openai.com/v1/chat/completions";
         const requestConfig = {
@@ -31,28 +23,60 @@ class GPT {
                 "Authorization": `Bearer ${config.OPENAI_KEY}`
             }
         };
-        const payload = {
-            model: "gpt-3.5-turbo",
-            messages: prompts,
-            temperature: 0.5,
-            top_p: 0.95,
-            frequency_penalty: 0,
-            presence_penalty: 0,
-            max_tokens: 2650,
-            stream: true,
-            n: 1,
-        };
     
-        try {
+        Query.createEmbedding(prompts.slice(-1)[0].content)
+        .then((data) => {
+            let systemPrompt = data.map((item: any) => item.sentence).join(' ');
+            systemPrompt = endent`
+            You have access to the following context:
+
+            ${systemPrompt}
+
+            Use the above context provided to you to answer any questions you may be given.
+            `
+            console.log(systemPrompt);
+
+            const completions: ChatCompletionRequestMessage[] = [];
+            completions.push({ content: systemPrompt, role: 'system' });
+            prompts.forEach((prompt: ChatCompletionRequestMessage) => {
+                completions.push(prompt);
+            });
+
+            const payload = {
+                model: "gpt-3.5-turbo",
+                messages: completions,
+                temperature: 0.5,
+                top_p: 0.95,
+                frequency_penalty: 0,
+                presence_penalty: 0,
+                max_tokens: 2500,
+                stream: true,
+                n: 1,
+            };
+
             fetch(url, {
                 method: 'POST',
                 headers: requestConfig.headers,
                 body: JSON.stringify(payload)
             }).then(response => {
                 response.body?.pipe(res);
-                response.body.on('data', (data) => console.log('data received', data.toString()));
+                // response.body.on('data', (data) => console.log('data received', data.toString()));
                 response.body?.on('end', () => console.log('Done...'))
             })
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+    }
+
+    async createEmbedding(req: Request, res: Response) {
+        const { sentence } = req.body;
+        if (!sentence)
+            return res.status(422).send('Bad request!');
+
+        try {
+            const response = await Query.createEmbedding(sentence);
+            return res.status(200).send(response);
         } catch (error) {
             console.log(error);
         }

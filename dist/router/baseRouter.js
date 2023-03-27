@@ -7,4 +7,5 @@ const express_1 = require("express");
 const GPT_1 = __importDefault(require("../controllers/GPT"));
 const router = (0, express_1.Router)();
 router.post('/query', GPT_1.default.query);
+router.post('/create-embedding', GPT_1.default.createEmbedding);
 exports.default = router;
