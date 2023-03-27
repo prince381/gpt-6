@@ -28,11 +28,9 @@ class GPT {
         .then((data) => {
             let systemPrompt = data.map((item: any) => item.sentence).join(' ');
             systemPrompt = endent`
-            You have access to the following context:
+            Use the information provided to you below, to answer any questions you may be given. Make sure you stick to the content in the information provided and do not make up any information. If you are asked a question that has no information in the data provided, you can answer with "I don't know the answer to this question. I'm sorry I couldn't be of much help". This is the information provided to you:
 
             "${systemPrompt}"
-
-            Use the above context provided to you to answer any questions you may be given. Make sure you stick to the context and do not make up any information. If you are asked a question that has no information in the context, you can answer with "I don't know the answer to this question. I'm sorry I couldn't be of much help".
             `
             console.log(systemPrompt);
 
