@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15,7 +38,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const GPT_1 = __importDefault(require("../../models/GPT"));
 const config_1 = require("../../config");
 const node_fetch_1 = __importDefault(require("node-fetch"));
-const endent_1 = __importDefault(require("endent"));
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
 class GPT {
     query(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,46 +54,36 @@ class GPT {
                     "Authorization": `Bearer ${config_1.config.OPENAI_KEY}`
                 }
             };
-            GPT_1.default.createEmbedding(prompts.slice(-1)[0].content)
-                .then((data) => {
-                let systemPrompt = data.map((item) => item.sentence).join(' ');
-                systemPrompt = (0, endent_1.default) `
-            You have access to the following context:
-
-            ${systemPrompt}
-
-            Use the above context provided to you to answer any questions you may be given.
-            `;
-                console.log(systemPrompt);
-                const completions = [];
-                completions.push({ content: systemPrompt, role: 'system' });
-                prompts.forEach((prompt) => {
-                    completions.push(prompt);
-                });
-                const payload = {
-                    model: "gpt-3.5-turbo",
-                    messages: completions,
-                    temperature: 0.5,
-                    top_p: 0.95,
-                    frequency_penalty: 0,
-                    presence_penalty: 0,
-                    max_tokens: 2500,
-                    stream: true,
-                    n: 1,
-                };
-                (0, node_fetch_1.default)(url, {
-                    method: 'POST',
-                    headers: requestConfig.headers,
-                    body: JSON.stringify(payload)
-                }).then(response => {
-                    var _a, _b;
-                    (_a = response.body) === null || _a === void 0 ? void 0 : _a.pipe(res);
-                    // response.body.on('data', (data) => console.log('data received', data.toString()));
-                    (_b = response.body) === null || _b === void 0 ? void 0 : _b.on('end', () => console.log('Done...'));
-                });
-            })
-                .catch((error) => {
-                console.log(error);
+            const systemPrompt = fs.readFileSync(path.resolve(__dirname, 'context/knowledge.txt'), 'utf8');
+            const completions = [];
+            completions.push({ content: systemPrompt, role: 'system' });
+            const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
+            promptHistory.forEach((prompt) => {
+                completions.push(prompt);
+            });
+            console.log(completions);
+            const payload = {
+                model: "gpt-3.5-turbo",
+                messages: completions,
+                temperature: 0.5,
+                top_p: 0.95,
+                frequency_penalty: 0,
+                presence_penalty: 0,
+                max_tokens: 2500,
+                stream: true,
+                n: 1,
+            };
+            (0, node_fetch_1.default)(url, {
+                method: 'POST',
+                headers: requestConfig.headers,
+                body: JSON.stringify(payload)
+            }).then(response => {
+                var _a, _b;
+                (_a = response.body) === null || _a === void 0 ? void 0 : _a.pipe(res);
+                // response.body.on('data', (data) => console.log('data received', data.toString()));
+                (_b = response.body) === null || _b === void 0 ? void 0 : _b.on('end', () => console.log('Done...'));
+            }).catch(err => {
+                console.error(err);
             });
         });
     }

@@ -48,7 +48,7 @@ class Query {
             const { data, error } = yield supabase.rpc('search_sm', {
                 query_embedding: embedding,
                 similarity_threshold: 0.7,
-                match_count: 2
+                match_count: 5
             });
             if (error) {
                 console.error(error);
