@@ -21,7 +21,7 @@ class Query {
             });
             const openai = new openai_1.OpenAIApi(configuration);
             const response = yield openai.createChatCompletion({
-                model: "gpt-3.5-turbo",
+                model: "gpt-4",
                 messages: completions,
                 temperature: 0.5,
                 max_tokens: 3089,

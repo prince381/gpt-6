@@ -28,21 +28,21 @@ class GPT {
 
         const completions: ChatCompletionRequestMessage[] = [];
         completions.push({ content: systemPrompt, role: 'system' });
-        const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
-        promptHistory.forEach((prompt: ChatCompletionRequestMessage) => {
+        // const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
+        prompts.forEach((prompt: ChatCompletionRequestMessage) => {
             completions.push(prompt);
         });
 
-        console.log(completions)
+        // console.log(completions)
 
         const payload = {
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
             messages: completions,
             temperature: 0.5,
             top_p: 0.95,
             frequency_penalty: 0,
             presence_penalty: 0,
-            max_tokens: 2500,
+            max_tokens: 4096,
             stream: true,
             n: 1,
         };
@@ -53,7 +53,7 @@ class GPT {
             body: JSON.stringify(payload)
         }).then(response => {
             response.body?.pipe(res);
-            // response.body.on('data', (data) => console.log('data received', data.toString()));
+            response.body.on('data', (data) => console.log('data received', data.toString()));
             response.body?.on('end', () => console.log('Done...'))
         }).catch(err => {
             console.error(err);
