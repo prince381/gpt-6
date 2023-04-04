@@ -30,7 +30,8 @@ exports.config = {
     SERVER_PORT: process.env.PORT || '',
     NODE_ENV: process.env.NODE_ENV || '',
     ORIGIN: process.env.ORIGIN || '',
-    OPENAI_KEY: process.env.OPENAI_KEY || '',
+    GPT35_KEY: process.env.GPT35_KEY || '',
+    GPT4_KEY: process.env.GPT4_KEY || '',
     SUPABASE_URL: process.env.SUPABASE_URL || '',
     SUPABASE_KEY: process.env.SUPABASE_KEY || '',
 };

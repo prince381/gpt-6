@@ -7,7 +7,7 @@ class Query {
     async query(completions: ChatCompletionRequestMessage[]) {
         console.log(`Prompts: ${completions}`)
         const configuration = new Configuration({
-            apiKey: config.OPENAI_KEY
+            apiKey: config.GPT4_KEY
         });
         const openai = new OpenAIApi(configuration);
         const response = await openai.createChatCompletion({
@@ -25,7 +25,7 @@ class Query {
 
     async createEmbedding(sentence: string) {
         const configuration = new Configuration({
-            apiKey: config.OPENAI_KEY
+            apiKey: config.GPT4_KEY
         });
         const openai = new OpenAIApi(configuration);
         const response = await openai.createEmbedding({

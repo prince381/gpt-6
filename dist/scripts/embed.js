@@ -39,7 +39,7 @@ const openai_1 = require("openai");
 const gpt_3_encoder_1 = require("gpt-3-encoder");
 const supabase_js_1 = require("@supabase/supabase-js");
 const configuration = new openai_1.Configuration({
-    apiKey: config_1.config.OPENAI_KEY
+    apiKey: config_1.config.GPT4_KEY
 });
 const openai = new openai_1.OpenAIApi(configuration);
 const file = fs.readFileSync(path.resolve(__dirname, 'context/knowledge.txt'), 'utf8');

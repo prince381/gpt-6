@@ -11,33 +11,50 @@ import endent from "endent";
 class GPT {
 
     async query(req: Request, res: Response) {
-        const { prompts } = req.body;
+        const { prompts, geoInfo } = req.body;
+        const premiumCountries = ['CA', 'US', 'AU', 'GB', 'GH', 'NZ', 'JP', 'DE'];
+
         if (!prompts || prompts.length === 0)
             return res.status(422).send('Bad request!');
 
         res.setHeader('Content-Type', 'text/event-stream');
+
         const url = "https://api.openai.com/v1/chat/completions";
         const requestConfig = {
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${config.OPENAI_KEY}`
+                "Authorization": `Bearer ${
+                    premiumCountries.includes(geoInfo.country) ? 
+                    config.GPT35_KEY : config.GPT4_KEY
+                }`
             }
         };
 
-        const systemPrompt = fs.readFileSync(path.resolve(__dirname, 'context/knowledge.txt'), 'utf8');
+        // console.log(geoInfo)
+        // console.log('\n')
+
+        const systemPrompt = fs.readFileSync(
+            path.resolve(__dirname, 'context/knowledge.txt'), 'utf8'
+        );
 
         const completions: ChatCompletionRequestMessage[] = [];
         completions.push({ content: systemPrompt, role: 'system' });
-        // const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
-        prompts.forEach((prompt: ChatCompletionRequestMessage) => {
-            completions.push(prompt);
-        });
+
+        if (!premiumCountries.includes(geoInfo.country)) {
+            const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
+            promptHistory.forEach((prompt: ChatCompletionRequestMessage) => {
+                completions.push(prompt);
+            });
+        } else {
+            prompts.forEach((prompt: ChatCompletionRequestMessage) => {
+                completions.push(prompt);
+            });
+        }
 
         // console.log(completions)
 
         const payload = {
-            // model: "gpt-3.5-turbo",
-            model: "gpt-4",
+            model: premiumCountries.includes(geoInfo.country) ? "gpt-4" : "gpt-3.5-turbo",
             messages: completions,
             temperature: 0.5,
             top_p: 0.95,
@@ -54,7 +71,7 @@ class GPT {
             body: JSON.stringify(payload)
         }).then(response => {
             response.body?.pipe(res);
-            response.body.on('data', (data) => console.log('data received', data.toString()));
+            // response.body.on('data', (data) => console.log('data received', data.toString()));
             response.body?.on('end', () => console.log('Done...'))
         }).catch(err => {
             console.error(err);

@@ -43,7 +43,8 @@ const path = __importStar(require("path"));
 class GPT {
     query(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { prompts } = req.body;
+            const { prompts, geoInfo } = req.body;
+            const premiumCountries = ['CA', 'US', 'AU', 'GB', 'GH', 'NZ', 'JP', 'DE'];
             if (!prompts || prompts.length === 0)
                 return res.status(422).send('Bad request!');
             res.setHeader('Content-Type', 'text/event-stream');
@@ -51,26 +52,35 @@ class GPT {
             const requestConfig = {
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${config_1.config.OPENAI_KEY}`
+                    "Authorization": `Bearer ${premiumCountries.includes(geoInfo.country) ?
+                        config_1.config.GPT35_KEY : config_1.config.GPT4_KEY}`
                 }
             };
+            // console.log(geoInfo)
+            // console.log('\n')
             const systemPrompt = fs.readFileSync(path.resolve(__dirname, 'context/knowledge.txt'), 'utf8');
             const completions = [];
             completions.push({ content: systemPrompt, role: 'system' });
-            // const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
-            prompts.forEach((prompt) => {
-                completions.push(prompt);
-            });
+            if (!premiumCountries.includes(geoInfo.country)) {
+                const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
+                promptHistory.forEach((prompt) => {
+                    completions.push(prompt);
+                });
+            }
+            else {
+                prompts.forEach((prompt) => {
+                    completions.push(prompt);
+                });
+            }
             // console.log(completions)
             const payload = {
-                // model: "gpt-3.5-turbo",
-                model: "gpt-4",
+                model: premiumCountries.includes(geoInfo.country) ? "gpt-4" : "gpt-3.5-turbo",
                 messages: completions,
                 temperature: 0.5,
                 top_p: 0.95,
                 frequency_penalty: 0,
                 presence_penalty: 0,
-                max_tokens: 2048,
+                max_tokens: 600,
                 stream: true,
                 n: 1,
             };
@@ -81,7 +91,7 @@ class GPT {
             }).then(response => {
                 var _a, _b;
                 (_a = response.body) === null || _a === void 0 ? void 0 : _a.pipe(res);
-                response.body.on('data', (data) => console.log('data received', data.toString()));
+                // response.body.on('data', (data) => console.log('data received', data.toString()));
                 (_b = response.body) === null || _b === void 0 ? void 0 : _b.on('end', () => console.log('Done...'));
             }).catch(err => {
                 console.error(err);

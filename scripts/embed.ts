@@ -6,7 +6,7 @@ import { encode } from "gpt-3-encoder";
 import {createClient} from '@supabase/supabase-js';
 
 const configuration = new Configuration({
-    apiKey: config.OPENAI_KEY
+    apiKey: config.GPT4_KEY
 });
 
 const openai = new OpenAIApi(configuration);

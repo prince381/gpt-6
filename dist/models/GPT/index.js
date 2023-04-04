@@ -17,14 +17,14 @@ class Query {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`Prompts: ${completions}`);
             const configuration = new openai_1.Configuration({
-                apiKey: config_1.config.OPENAI_KEY
+                apiKey: config_1.config.GPT4_KEY
             });
             const openai = new openai_1.OpenAIApi(configuration);
             const response = yield openai.createChatCompletion({
                 model: "gpt-4",
                 messages: completions,
                 temperature: 0.5,
-                max_tokens: 3089,
+                max_tokens: 1024,
                 top_p: 1,
                 frequency_penalty: 0,
                 presence_penalty: 0,
@@ -36,7 +36,7 @@ class Query {
     createEmbedding(sentence) {
         return __awaiter(this, void 0, void 0, function* () {
             const configuration = new openai_1.Configuration({
-                apiKey: config_1.config.OPENAI_KEY
+                apiKey: config_1.config.GPT4_KEY
             });
             const openai = new openai_1.OpenAIApi(configuration);
             const response = yield openai.createEmbedding({
