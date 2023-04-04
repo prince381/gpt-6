@@ -12,7 +12,7 @@ class GPT {
 
     async query(req: Request, res: Response) {
         const { prompts, geoInfo } = req.body;
-        const country = geoInfo.country || '';
+        const country = geoInfo ? `${geoInfo.country || ''}` : '';
         const premiumCountries = ['CA', 'US', 'AU', 'GB', 'GH', 'NZ', 'JP', 'DE'];
 
         if (!prompts || prompts.length === 0)
