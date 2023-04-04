@@ -11,7 +11,7 @@ import endent from "endent";
 class GPT {
 
     async query(req: Request, res: Response) {
-        const { prompts, geoInfo } = req.body;
+        const { prompts, geoInfo, paid } = req.body;
         const country = geoInfo ? `${geoInfo.country || ''}` : '';
         const premiumCountries = ['CA', 'US', 'AU', 'GB', 'GH', 'NZ', 'JP', 'DE'];
 
@@ -25,13 +25,13 @@ class GPT {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${
-                    premiumCountries.includes(country) ? 
+                    premiumCountries.includes(country) || paid ? 
                     config.GPT4_KEY : config.GPT35_KEY
                 }`
             }
         };
 
-        console.log(geoInfo)
+        console.log(geoInfo, paid)
         // console.log('\n')
 
         const systemPrompt = fs.readFileSync(
@@ -41,7 +41,7 @@ class GPT {
         const completions: ChatCompletionRequestMessage[] = [];
         completions.push({ content: systemPrompt, role: 'system' });
 
-        if (!premiumCountries.includes(country)) {
+        if (!paid && !premiumCountries.includes(country)) {
             const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
             promptHistory.forEach((prompt: ChatCompletionRequestMessage) => {
                 completions.push(prompt);
@@ -55,7 +55,7 @@ class GPT {
         // console.log(completions)
 
         const payload = {
-            model: premiumCountries.includes(country) ? "gpt-4" : "gpt-3.5-turbo",
+            model: premiumCountries.includes(country) || paid ? "gpt-4" : "gpt-3.5-turbo",
             messages: completions,
             temperature: 0.5,
             top_p: 0.95,
