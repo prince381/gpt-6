@@ -30,7 +30,7 @@ class GPT {
             }
         };
 
-        // console.log(geoInfo)
+        console.log(geoInfo)
         // console.log('\n')
 
         const systemPrompt = fs.readFileSync(

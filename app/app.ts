@@ -25,12 +25,14 @@ app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/v1", baseRouter);
+
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({
         status: 'success',
         message: 'server is listening for requests.'
     })
 });
+
+app.use("/api/v1", baseRouter);
 
 export default app;
