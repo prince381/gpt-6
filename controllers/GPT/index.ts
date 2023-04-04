@@ -12,6 +12,7 @@ class GPT {
 
     async query(req: Request, res: Response) {
         const { prompts, geoInfo } = req.body;
+        const country = geoInfo.country || '';
         const premiumCountries = ['CA', 'US', 'AU', 'GB', 'GH', 'NZ', 'JP', 'DE'];
 
         if (!prompts || prompts.length === 0)
@@ -24,7 +25,7 @@ class GPT {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${
-                    premiumCountries.includes(geoInfo.country) ? 
+                    premiumCountries.includes(country) ? 
                     config.GPT4_KEY : config.GPT35_KEY
                 }`
             }
@@ -40,7 +41,7 @@ class GPT {
         const completions: ChatCompletionRequestMessage[] = [];
         completions.push({ content: systemPrompt, role: 'system' });
 
-        if (!premiumCountries.includes(geoInfo.country)) {
+        if (!premiumCountries.includes(country)) {
             const promptHistory = prompts.length > 1 ? prompts.slice(-2) : prompts;
             promptHistory.forEach((prompt: ChatCompletionRequestMessage) => {
                 completions.push(prompt);
@@ -54,7 +55,7 @@ class GPT {
         // console.log(completions)
 
         const payload = {
-            model: premiumCountries.includes(geoInfo.country) ? "gpt-4" : "gpt-3.5-turbo",
+            model: premiumCountries.includes(country) ? "gpt-4" : "gpt-3.5-turbo",
             messages: completions,
             temperature: 0.5,
             top_p: 0.95,
