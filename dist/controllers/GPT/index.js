@@ -56,8 +56,8 @@ class GPT {
                         config_1.config.GPT35_KEY : config_1.config.GPT4_KEY}`
                 }
             };
-            // console.log(geoInfo)
-            // console.log('\n')
+            console.log(geoInfo);
+            console.log('\n');
             const systemPrompt = fs.readFileSync(path.resolve(__dirname, 'context/knowledge.txt'), 'utf8');
             const completions = [];
             completions.push({ content: systemPrompt, role: 'system' });

@@ -30,8 +30,8 @@ class GPT {
             }
         };
 
-        // console.log(geoInfo)
-        // console.log('\n')
+        console.log(geoInfo)
+        console.log('\n')
 
         const systemPrompt = fs.readFileSync(
             path.resolve(__dirname, 'context/knowledge.txt'), 'utf8'
