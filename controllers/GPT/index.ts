@@ -25,13 +25,13 @@ class GPT {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${
                     premiumCountries.includes(geoInfo.country) ? 
-                    config.GPT35_KEY : config.GPT4_KEY
+                    config.GPT4_KEY : config.GPT35_KEY
                 }`
             }
         };
 
-        console.log(geoInfo)
-        console.log('\n')
+        // console.log(geoInfo)
+        // console.log('\n')
 
         const systemPrompt = fs.readFileSync(
             path.resolve(__dirname, 'context/knowledge.txt'), 'utf8'
